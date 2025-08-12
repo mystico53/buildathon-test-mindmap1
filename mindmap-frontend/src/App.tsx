@@ -132,22 +132,22 @@ function App() {
     });
 
     newSocket.on('mindmap-state', (state: any) => {
-      if (state.nodes.length > 0) {
-        setNodes(state.nodes);
-      }
-      if (state.edges.length > 0) {
-        setEdges(state.edges);
-      }
+      console.log('Received mindmap state from server:', state);
+      setNodes(state.nodes);
+      setEdges(state.edges);
     });
 
     newSocket.on('node-updated', (nodeData: any) => {
+      console.log('Received node update:', nodeData);
       setNodes((currentNodes) => {
         const existingIndex = currentNodes.findIndex(n => n.id === nodeData.id);
         if (existingIndex >= 0) {
+          console.log(`Updating existing node ${nodeData.id}`);
           const updatedNodes = [...currentNodes];
           updatedNodes[existingIndex] = nodeData;
           return updatedNodes;
         } else {
+          console.log(`Adding new node ${nodeData.id}`);
           return [...currentNodes, nodeData];
         }
       });
@@ -234,9 +234,11 @@ function App() {
       position: { x: Math.random() * 400 + 100, y: Math.random() * 400 + 100 },
       data: { label: `New Node ${nodes.length + 1}`, tags: [], color: randomColor },
     };
+    console.log('Adding new node:', newNode);
     setNodes((nds) => [...nds, newNode]);
     
     if (socket) {
+      console.log('Sending node-update to server:', newNode);
       socket.emit('node-update', newNode);
     }
   };
@@ -282,6 +284,7 @@ function App() {
       );
       
       if (socket) {
+        console.log('Sending updated node to server:', newNodeData);
         socket.emit('node-update', newNodeData);
       }
     }
